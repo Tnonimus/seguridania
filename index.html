@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>SeguriBarrio 360 · Barrio 30 de Marzo</title>
-<!-- Enlaces para App PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0f172a">
 <link rel="apple-touch-icon" href="icon512.png">
@@ -13,76 +12,60 @@
 :root { --bg: #0f172a; --card: #1e293b; --card-border: #334155; --ink: #f8fafc; --muted: #94a3b8; --blue: #3b82f6; --green: #10b981; --red: #ef4444; --gold: #f59e0b; }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 15px system-ui, sans-serif; min-height: 100vh; padding-bottom: 20px;}
-
 header { background: #0b1120; border-bottom: 2px solid var(--blue); padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
 header h1 { font-size: 18px; margin: 0; color: #fff; display: flex; align-items: center; gap: 8px; }
 .nav-tabs { display: flex; gap: 8px; }
 .tab-btn { background: #1e293b; color: var(--muted); border: 1px solid var(--card-border); padding: 8px 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 12px; }
 .tab-btn.active { background: var(--blue); color: white; border-color: var(--blue); }
-
 main { max-width: 1000px; margin: auto; padding: 16px; }
 .view-section { display: none; }
 .view-section.active { display: block; }
 .card { background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); }
-
 .hero-vecino { text-align: center; padding: 10px 0 20px; }
 .hero-vecino h2 { font-size: 22px; color: #fff; margin: 0 0 6px; }
 .hero-vecino p { color: var(--muted); margin: 0; font-size: 13px; }
-
 .form-group { margin-bottom: 14px; }
 label { display: block; font-size: 12px; color: var(--muted); font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
 input, select { width: 100%; border: 1px solid var(--card-border); border-radius: 10px; padding: 12px; background: #0f172a; color: white; font: inherit; outline: none; }
 input:focus, select:focus { border-color: var(--blue); }
-
 .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
 @media(max-width: 600px){ .grid3 { grid-template-columns: 1fr; } }
-
 .btn { display: inline-block; width: 100%; border: 0; border-radius: 10px; padding: 12px; font-weight: 700; font-size: 14px; cursor: pointer; text-align: center; text-decoration: none; }
 .btn-primary { background: var(--blue); color: white; }
 .btn-whatsapp { background: #25d366; color: white; margin-top: 10px; }
 .btn-danger { background: var(--red); color: white; }
 .btn-warn { background: var(--gold); color: white; }
-
 .panic-btn { background: linear-gradient(45deg, #ef4444, #b91c1c); color: white; font-size: 16px; padding: 15px; border: 2px solid #7f1d1d; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); animation: breathe 2s infinite; margin-top: 10px; }
 @keyframes breathe { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
-
-/* ESTADO DE PAGO */
 .status-box { text-align: center; padding: 20px; border-radius: 14px; margin-top: 15px; }
 .status-box.paid { background: rgba(16, 185, 129, 0.15); border: 2px solid var(--green); color: #34d399; }
 .status-box.unpaid { background: rgba(239, 68, 68, 0.15); border: 2px solid var(--red); color: #f87171; }
 .qr-img { width: 200px; height: 200px; border-radius: 12px; margin: 12px auto; display: block; border: 2px solid var(--card-border); object-fit: cover; }
-
 .history-strip { display: flex; justify-content: center; gap: 8px; margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); }
 .history-stamp { font-size: 11px; padding: 4px 8px; border-radius: 4px; background: #0f172a; border: 1px solid var(--card-border); }
 .history-stamp.ok { border-color: var(--green); color: var(--green); }
 .history-stamp.fail { border-color: var(--red); color: var(--red); }
-
 .badge-container { display: flex; justify-content: space-around; align-items: center; padding: 15px; background: #0f172a; border-radius: 12px; margin-top: 15px; border: 1px solid var(--card-border); }
 .badge-item { text-align: center; }
 .badge-icon { font-size: 24px; display: block; }
 .badge-text { font-size: 10px; color: var(--muted); font-weight: bold; margin-top: 4px; }
-
 #mapVecino, #mapAdmin { height: 350px; border-radius: 12px; border: 1px solid var(--card-border); z-index: 1; }
 .legend { display: flex; justify-content: center; gap: 15px; font-size: 12px; color: var(--muted); margin-top: 10px; }
 .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; }
 .dot.green { background: var(--green); } .dot.red { background: var(--red); } .dot.blue { background: var(--blue); }
-
 .leaflet-div-icon { background: transparent; border: 0; }
 .pin { width: 24px; height: 24px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 2px 6px #0008; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 9px; }
 .pin span { transform: rotate(45deg); }
 .pin.paid { background: var(--green); } .pin.unpaid { background: var(--red); }
-
 .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
 .stat-card { background: #0f172a; border: 1px solid var(--card-border); border-radius: 12px; padding: 14px; text-align: center; }
 .stat-card b { font-size: 20px; color: white; display: block; }
 .stat-card span { font-size: 11px; color: var(--muted); }
-
 .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
 .home-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; max-height: 250px; overflow-y: auto; padding-right: 4px; }
 .home-btn { background: #0f172a; border: 1px solid var(--card-border); border-radius: 8px; padding: 8px; text-align: left; color: white; cursor: pointer; }
 .home-btn.paid { border-left: 4px solid var(--green); }
 .home-btn.unpaid { border-left: 4px solid var(--red); }
-
 #editorModal { display: none; background: #0f172a; border: 1px solid var(--blue); border-radius: 12px; padding: 16px; margin-top: 12px; }
 </style>
 </head>
@@ -97,9 +80,7 @@ input:focus, select:focus { border-color: var(--blue); }
 </header>
 
 <main>
-  <!-- ==================== VISTA VECINOS ==================== -->
   <section id="view-vecinos" class="view-section active">
-    
     <div id="installPrompt" class="card" style="display:none; background: #1e3a8a; border-color: #3b82f6; text-align:center;">
       <h3 style="margin:0 0 5px; color:#fff;">📱 ¡Instala nuestra App!</h3>
       <p style="margin:0 0 10px; font-size:13px; color:#bfdbfe;">Añade SeguriBarrio a tu pantalla de inicio para acceso rápido.</p>
@@ -128,7 +109,6 @@ input:focus, select:focus { border-color: var(--blue); }
           </div>
         </div>
         <button type="submit" class="btn btn-primary">🔍 Consultar Mi Estado</button>
-        
         <button type="button" onclick="triggerPanic()" class="btn panic-btn">🚨 BOTÓN DE PÁNICO SILENCIOSO</button>
       </form>
 
@@ -158,7 +138,6 @@ input:focus, select:focus { border-color: var(--blue); }
     </div>
   </section>
 
-  <!-- ==================== VISTA ADMINISTRADOR ==================== -->
   <section id="view-admin" class="view-section">
     <div id="adminAuth" class="card" style="max-width:360px; margin:40px auto;">
       <h2 style="text-align:center; margin-top:0; color:#fff;">Acceso Encargado</h2>
@@ -222,10 +201,8 @@ input:focus, select:focus { border-color: var(--blue); }
     </div>
   </section>
 </main>
-
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-// PWA
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js').catch(err => console.log('Error PWA', err));
 }
@@ -273,7 +250,6 @@ function switchTab(tab) {
   }
 }
 
-// LOGICA VECINOS
 function loginNeighbor(e) {
   e.preventDefault();
   let nom = document.getElementById('vecNombre').value.trim();
@@ -324,11 +300,10 @@ function triggerPanic() {
   let nom = document.getElementById('vecNombre').value || "Un vecino";
   let calle = document.getElementById('vecCalle').value || "una calle";
   let casa = document.getElementById('vecCasa').value || "una casa";
-  let msg = `🚨 ALERTA DE PÁNICO SILENCIOSO 🚨\\nRequieren apoyo urgente en ${casa} (${calle}). Solicitante: ${nom}.\\nPor favor revisar situación de inmediato.`;
+  let msg = `🚨 ALERTA DE PÁNICO SILENCIOSO 🚨\nRequieren apoyo urgente en ${casa} (${calle}). Solicitante: ${nom}.\nPor favor revisar situación de inmediato.`;
   window.open(`https://wa.me/${PHONE_ADMIN}?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
-// ADMIN LOGIN
 function checkAdminPass() {
   if(document.getElementById('adminPass').value === ADMIN_PASS) {
     document.getElementById('adminAuth').style.display = 'none';
@@ -339,7 +314,6 @@ function checkAdminPass() {
 }
 function logoutAdmin() { document.getElementById('adminAuth').style.display = 'block'; document.getElementById('adminPanel').style.display = 'none'; document.getElementById('adminPass').value = ''; }
 
-// MAPAS
 function initMaps() {
   if(!mapV){ mapV = L.map('mapVecino', { dragging: !L.Browser.mobile }).setView([-17.78, -63.18], 15); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(mapV); }
   if(!mapA){ mapA = L.map('mapAdmin').setView([-17.78, -63.18], 15); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(mapA); mapA.on('click', handleAdminMapClick); }
@@ -355,4 +329,55 @@ function renderAll() {
     if(h.lat != null && h.lng != null && mapA && mapV) {
       let mV = L.marker([h.lat, h.lng], { icon: createPinIcon(h), interactive: true }).addTo(mapV); mV.bindTooltip(`${h.name}`); markersVecino[h.id] = mV;
       let mA = L.marker([h.lat, h.lng], { icon: createPinIcon(h), draggable: true }).addTo(mapA); mA.bindTooltip(h.name); mA.on('click', () => openEditor(h.id));
-      mA.on('dragend', (e) => { h.lat = e.target.getLatLng().lat; h.lng = e.target.getLatLng().lng; saveData(); }); markersAdmin[h.i
+      mA.on('dragend', (e) => { h.lat = e.target.getLatLng().lat; h.lng = e.target.getLatLng().lng; saveData(); }); markersAdmin[h.id] = mA;
+    }
+  });
+
+  if(mapA && mapV) {
+    data.patrols.forEach(p => { if(p.length > 1) { L.polyline(p, { color: '#3b82f6', weight: 4 }).addTo(mapV); L.polyline(p, { color: '#3b82f6', weight: 5 }).addTo(mapA); } });
+  }
+
+  document.getElementById('admPaid').textContent = paidCount;
+  document.getElementById('admUnpaid').textContent = data.houses.length - paidCount;
+  document.getElementById('admTotal').textContent = 'Bs ' + (paidCount * Number(data.fee));
+  document.getElementById('admFee').value = data.fee;
+  
+  if(data.qr) { let img = document.getElementById('adminQrPreview'); img.src = data.qr; img.style.display = 'block'; }
+
+  let listEl = document.getElementById('admHomeList'); listEl.innerHTML = '';
+  data.houses.forEach(h => {
+    let btn = document.createElement('div'); btn.className = `home-btn ${h.status}`; btn.innerHTML = `<b>${h.name}</b><br><small style="color:var(--muted);">${h.resident || 'Sin prop.'}</small>`;
+    btn.onclick = () => { openEditor(h.id); if(h.lat != null && mapA) mapA.setView([h.lat, h.lng], 17); }; listEl.appendChild(btn);
+  });
+}
+
+function handleAdminMapClick(e) {
+  if(mode === 'add') {
+    let newH = { id: 'h' + Date.now(), name: 'Casa ' + (data.houses.length + 1), resident: '', status: 'unpaid', lat: e.latlng.lat, lng: e.latlng.lng };
+    data.houses.push(newH); mode = null; document.getElementById('addModeBtn').classList.remove('btn-warn'); saveData(); openEditor(newH.id);
+  } else if(mode === 'patrol') {
+    tempPatrolPoints.push([e.latlng.lat, e.latlng.lng]); if(tempPolyline) mapA.removeLayer(tempPolyline);
+    tempPolyline = L.polyline(tempPatrolPoints, { color: '#f59e0b', weight: 4, dashArray: '6 6' }).addTo(mapA);
+  }
+}
+function toggleAddMode() { mode = mode === 'add' ? null : 'add'; document.getElementById('addModeBtn').classList.toggle('btn-warn', mode === 'add'); }
+function togglePatrolMode() { mode = mode === 'patrol' ? null : 'patrol'; tempPatrolPoints = []; document.getElementById('patrolModeBtn').classList.toggle('btn-warn', mode === 'patrol'); document.getElementById('finishPatrolBtn').disabled = mode !== 'patrol'; }
+function finishPatrol() { if(tempPatrolPoints.length > 1) { data.patrols.push(tempPatrolPoints); saveData(); } tempPatrolPoints = []; if(tempPolyline) mapA.removeLayer(tempPolyline); mode = null; document.getElementById('finishPatrolBtn').disabled = true; document.getElementById('patrolModeBtn').classList.remove('btn-warn'); }
+function clearPatrols() { if(confirm("¿Eliminar rutas?")) { data.patrols = []; saveData(); } }
+
+function openEditor(id) {
+  selectedHouseId = id; let h = data.houses.find(x => x.id === id); if(!h) return;
+  document.getElementById('editorModal').style.display = 'block'; document.getElementById('editTitle').textContent = 'Editar: ' + h.name;
+  document.getElementById('editName').value = h.name; document.getElementById('editResident').value = h.resident || ''; document.getElementById('editStatus').value = h.status;
+}
+function saveHouseChanges() { let h = data.houses.find(x => x.id === selectedHouseId); if(h) { h.name = document.getElementById('editName').value; h.resident = document.getElementById('editResident').value; h.status = document.getElementById('editStatus').value; closeEditor(); saveData(); } }
+function deleteSelectedHouse() { if(confirm("¿Eliminar casa?")) { data.houses = data.houses.filter(x => x.id !== selectedHouseId); closeEditor(); saveData(); } }
+function closeEditor() { document.getElementById('editorModal').style.display = 'none'; }
+function addUnplacedHouse() { let newH = { id: 'h' + Date.now(), name: 'Casa ' + (data.houses.length + 1), resident: '', status: 'unpaid', lat: null, lng: null }; data.houses.push(newH); saveData(); openEditor(newH.id); }
+function updateFee() { data.fee = Number(document.getElementById('admFee').value) || 20; saveData(); }
+function uploadQR(e) { let file = e.target.files[0]; if(!file) return; let r = new FileReader(); r.onload = () => { data.qr = r.result; saveData(); }; r.readAsDataURL(file); }
+
+window.onload = () => { loadData(); initMaps(); };
+</script>
+</body>
+</html>
