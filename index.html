@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>SeguriBarrio 360 · Barrio 30 de Marzo</title>
+<!-- Enlaces para App PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f172a">
+<link rel="apple-touch-icon" href="icon512.png">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root { --bg: #0f172a; --card: #1e293b; --card-border: #334155; --ink: #f8fafc; --muted: #94a3b8; --blue: #3b82f6; --green: #10b981; --red: #ef4444; --gold: #f59e0b; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px system-ui, sans-serif; min-height: 100vh; padding-bottom: 20px;}
+
+header { background: #0b1120; border-bottom: 2px solid var(--blue); padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+header h1 { font-size: 18px; margin: 0; color: #fff; display: flex; align-items: center; gap: 8px; }
+.nav-tabs { display: flex; gap: 8px; }
+.tab-btn { background: #1e293b; color: var(--muted); border: 1px solid var(--card-border); padding: 8px 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 12px; }
+.tab-btn.active { background: var(--blue); color: white; border-color: var(--blue); }
+
+main { max-width: 1000px; margin: auto; padding: 16px; }
+.view-section { display: none; }
+.view-section.active { display: block; }
+.card { background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); }
+
+.hero-vecino { text-align: center; padding: 10px 0 20px; }
+.hero-vecino h2 { font-size: 22px; color: #fff; margin: 0 0 6px; }
+.hero-vecino p { color: var(--muted); margin: 0; font-size: 13px; }
+
+.form-group { margin-bottom: 14px; }
+label { display: block; font-size: 12px; color: var(--muted); font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
+input, select { width: 100%; border: 1px solid var(--card-border); border-radius: 10px; padding: 12px; background: #0f172a; color: white; font: inherit; outline: none; }
+input:focus, select:focus { border-color: var(--blue); }
+
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+@media(max-width: 600px){ .grid3 { grid-template-columns: 1fr; } }
+
+.btn { display: inline-block; width: 100%; border: 0; border-radius: 10px; padding: 12px; font-weight: 700; font-size: 14px; cursor: pointer; text-align: center; text-decoration: none; }
+.btn-primary { background: var(--blue); color: white; }
+.btn-whatsapp { background: #25d366; color: white; margin-top: 10px; }
+.btn-danger { background: var(--red); color: white; }
+.btn-warn { background: var(--gold); color: white; }
+
+.panic-btn { background: linear-gradient(45deg, #ef4444, #b91c1c); color: white; font-size: 16px; padding: 15px; border: 2px solid #7f1d1d; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); animation: breathe 2s infinite; margin-top: 10px; }
+@keyframes breathe { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+
+/* ESTADO DE PAGO */
+.status-box { text-align: center; padding: 20px; border-radius: 14px; margin-top: 15px; }
+.status-box.paid { background: rgba(16, 185, 129, 0.15); border: 2px solid var(--green); color: #34d399; }
+.status-box.unpaid { background: rgba(239, 68, 68, 0.15); border: 2px solid var(--red); color: #f87171; }
+.qr-img { width: 200px; height: 200px; border-radius: 12px; margin: 12px auto; display: block; border: 2px solid var(--card-border); object-fit: cover; }
+
+.history-strip { display: flex; justify-content: center; gap: 8px; margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); }
+.history-stamp { font-size: 11px; padding: 4px 8px; border-radius: 4px; background: #0f172a; border: 1px solid var(--card-border); }
+.history-stamp.ok { border-color: var(--green); color: var(--green); }
+.history-stamp.fail { border-color: var(--red); color: var(--red); }
+
+.badge-container { display: flex; justify-content: space-around; align-items: center; padding: 15px; background: #0f172a; border-radius: 12px; margin-top: 15px; border: 1px solid var(--card-border); }
+.badge-item { text-align: center; }
+.badge-icon { font-size: 24px; display: block; }
+.badge-text { font-size: 10px; color: var(--muted); font-weight: bold; margin-top: 4px; }
+
+#mapVecino, #mapAdmin { height: 350px; border-radius: 12px; border: 1px solid var(--card-border); z-index: 1; }
+.legend { display: flex; justify-content: center; gap: 15px; font-size: 12px; color: var(--muted); margin-top: 10px; }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; }
+.dot.green { background: var(--green); } .dot.red { background: var(--red); } .dot.blue { background: var(--blue); }
+
+.leaflet-div-icon { background: transparent; border: 0; }
+.pin { width: 24px; height: 24px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2px solid white; box-shadow: 0 2px 6px #0008; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 9px; }
+.pin span { transform: rotate(45deg); }
+.pin.paid { background: var(--green); } .pin.unpaid { background: var(--red); }
+
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+.stat-card { background: #0f172a; border: 1px solid var(--card-border); border-radius: 12px; padding: 14px; text-align: center; }
+.stat-card b { font-size: 20px; color: white; display: block; }
+.stat-card span { font-size: 11px; color: var(--muted); }
+
+.toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.home-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; max-height: 250px; overflow-y: auto; padding-right: 4px; }
+.home-btn { background: #0f172a; border: 1px solid var(--card-border); border-radius: 8px; padding: 8px; text-align: left; color: white; cursor: pointer; }
+.home-btn.paid { border-left: 4px solid var(--green); }
+.home-btn.unpaid { border-left: 4px solid var(--red); }
+
+#editorModal { display: none; background: #0f172a; border: 1px solid var(--blue); border-radius: 12px; padding: 16px; margin-top: 12px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🛡️ SeguriBarrio <span>360</span></h1>
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('vecinos')">🏠 Vecinos</button>
+    <button class="tab-btn" onclick="switchTab('admin')">🔒 Admin</button>
+  </div>
+</header>
+
+<main>
+  <!-- ==================== VISTA VECINOS ==================== -->
+  <section id="view-vecinos" class="view-section active">
+    
+    <div id="installPrompt" class="card" style="display:none; background: #1e3a8a; border-color: #3b82f6; text-align:center;">
+      <h3 style="margin:0 0 5px; color:#fff;">📱 ¡Instala nuestra App!</h3>
+      <p style="margin:0 0 10px; font-size:13px; color:#bfdbfe;">Añade SeguriBarrio a tu pantalla de inicio para acceso rápido.</p>
+      <button id="btnInstall" class="btn btn-primary" style="width:auto; padding:8px 20px;">Instalar App</button>
+    </div>
+
+    <div class="card">
+      <div class="hero-vecino">
+        <h2>Control de Seguridad</h2>
+        <p>Barrio 30 de Marzo · Consulta estado y reporta alertas</p>
+      </div>
+
+      <form id="neighborLoginForm" onsubmit="loginNeighbor(event)">
+        <div class="grid3">
+          <div class="form-group">
+            <label>Nombre y Apellido</label>
+            <input type="text" id="vecNombre" placeholder="Ej. Juan Pérez" required>
+          </div>
+          <div class="form-group">
+            <label>Calle / Avenida</label>
+            <input type="text" id="vecCalle" placeholder="Ej. Calle 3" required>
+          </div>
+          <div class="form-group">
+            <label>Nº de Casa</label>
+            <input type="text" id="vecCasa" placeholder="Ej. Casa 12" required>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">🔍 Consultar Mi Estado</button>
+        
+        <button type="button" onclick="triggerPanic()" class="btn panic-btn">🚨 BOTÓN DE PÁNICO SILENCIOSO</button>
+      </form>
+
+      <div id="neighborResult" style="display:none;">
+        <div id="statusCard" class="status-box"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin:0 0 10px; font-size:16px; color:#fff;">🏆 Estado de la Comunidad</h3>
+      <div class="badge-container">
+        <div class="badge-item"><span class="badge-icon">🛡️</span><div class="badge-text">Nivel: Protegido</div></div>
+        <div class="badge-item"><span class="badge-icon">⭐</span><div class="badge-text">Barrio Seguro</div></div>
+        <div class="badge-item"><span class="badge-icon">⚡</span><div class="badge-text">Patrullaje Activo</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin:0 0 4px; font-size:16px; color:#fff;">📍 Mapa Interactivo</h3>
+      <p style="font-size:12px; color:var(--muted); margin:0 0 10px;">Zonas protegidas y recorridos del guardia.</p>
+      <div id="mapVecino"></div>
+      <div class="legend">
+        <span><i class="dot green"></i>Al día</span>
+        <span><i class="dot red"></i>Pendiente</span>
+        <span><i class="dot blue"></i>Recorrido</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== VISTA ADMINISTRADOR ==================== -->
+  <section id="view-admin" class="view-section">
+    <div id="adminAuth" class="card" style="max-width:360px; margin:40px auto;">
+      <h2 style="text-align:center; margin-top:0; color:#fff;">Acceso Encargado</h2>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" id="adminPass" placeholder="Clave...">
+      </div>
+      <button onclick="checkAdminPass()" class="btn btn-primary">Ingresar</button>
+      <p id="loginError" style="color:var(--red); font-size:12px; text-align:center; display:none;">Contraseña incorrecta.</p>
+    </div>
+
+    <div id="adminPanel" style="display:none;">
+      <div class="stats-grid">
+        <div class="stat-card"><b id="admPaid">0</b><span>Pagadas</span></div>
+        <div class="stat-card"><b id="admUnpaid">0</b><span>Pendientes</span></div>
+        <div class="stat-card"><b id="admTotal">Bs 0</b><span>Recaudado</span></div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <h3 style="margin:0; color:#fff;">Mapa y Recorridos</h3>
+          <button onclick="logoutAdmin()" class="btn btn-danger" style="width:auto; padding:6px 12px; font-size:12px;">Cerrar Sesión</button>
+        </div>
+        <div class="toolbar">
+          <button class="btn btn-primary" id="addModeBtn" onclick="toggleAddMode()">＋ Añadir Casa</button>
+          <button class="btn btn-warn" id="patrolModeBtn" onclick="togglePatrolMode()">📍 Trazar Recorrido</button>
+          <button class="btn btn-primary" id="finishPatrolBtn" onclick="finishPatrol()" disabled style="background:#059669;">Guardar Recorrido</button>
+          <button class="btn btn-danger" onclick="clearPatrols()" style="width:auto;">Borrar Rutas</button>
+        </div>
+        <div id="mapAdmin"></div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 10px; color:#fff;">Casas y Vecinos</h3>
+        <div class="toolbar"><button class="btn btn-primary" onclick="addUnplacedHouse()" style="width:auto;">＋ Crear Casa sin Mapa</button></div>
+        <div class="home-list" id="admHomeList"></div>
+
+        <div id="editorModal">
+          <h4 id="editTitle" style="margin:0 0 10px; color:#fff;">Editar Casa</h4>
+          <div class="grid3">
+            <div class="form-group"><label>Nº Casa</label><input type="text" id="editName"></div>
+            <div class="form-group"><label>Propietario / Referencia</label><input type="text" id="editResident"></div>
+            <div class="form-group"><label>Estado</label><select id="editStatus"><option value="unpaid">Pendiente</option><option value="paid">Pagada</option></select></div>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button onclick="saveHouseChanges()" class="btn btn-primary">Guardar</button>
+            <button onclick="deleteSelectedHouse()" class="btn btn-danger">Eliminar</button>
+            <button onclick="closeEditor()" class="btn" style="background:#334155;">Cancelar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 10px; color:#fff;">Configuración General</h3>
+        <div class="grid3">
+          <div class="form-group"><label>Cuota (Bs)</label><input type="number" id="admFee" value="20" onchange="updateFee()"></div>
+          <div class="form-group"><label>Subir QR de Pago</label><input type="file" accept="image/*" onchange="uploadQR(event)"></div>
+        </div>
+        <img id="adminQrPreview" class="qr-img" style="display:none; margin:0;">
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// PWA
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(err => console.log('Error PWA', err));
+}
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault(); deferredPrompt = e; document.getElementById('installPrompt').style.display = 'block';
+});
+document.getElementById('btnInstall').addEventListener('click', async () => {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') document.getElementById('installPrompt').style.display = 'none';
+    deferredPrompt = null;
+  }
+});
+
+const ADMIN_PASS = "1234";
+const PHONE_ADMIN = "59177111462";
+const STORAGE_KEY = 'seguribarrio_360_v5';
+
+let data = { fee: 20, qr: null, houses: [], patrols: [] };
+let mapV, mapA;
+let markersAdmin = {}, markersVecino = {};
+let selectedHouseId = null, mode = null, tempPatrolPoints = [], tempPolyline = null;
+
+function loadData() {
+  try { let saved = JSON.parse(localStorage.getItem(STORAGE_KEY)); if(saved) data = { ...data, ...saved }; } catch(e){}
+  if(!data.houses.length) {
+    for(let i=1; i<=15; i++) { data.houses.push({ id: 'h'+i, name: 'Casa ' + i, resident: '', status: 'unpaid', lat: null, lng: null }); }
+  }
+}
+function saveData() { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); renderAll(); }
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+  if(tab === 'vecinos') {
+    document.querySelectorAll('.tab-btn')[0].classList.add('active');
+    document.getElementById('view-vecinos').classList.add('active');
+    setTimeout(() => { if(mapV) mapV.invalidateSize(); }, 200);
+  } else {
+    document.querySelectorAll('.tab-btn')[1].classList.add('active');
+    document.getElementById('view-admin').classList.add('active');
+    setTimeout(() => { if(mapA) mapA.invalidateSize(); }, 200);
+  }
+}
+
+// LOGICA VECINOS
+function loginNeighbor(e) {
+  e.preventDefault();
+  let nom = document.getElementById('vecNombre').value.trim();
+  let calle = document.getElementById('vecCalle').value.trim();
+  let casa = document.getElementById('vecCasa').value.trim();
+
+  let house = data.houses.find(h => h.name.toLowerCase().includes(casa.toLowerCase()));
+  if(!house) house = data.houses[0];
+
+  let resContainer = document.getElementById('neighborResult');
+  let statusCard = document.getElementById('statusCard');
+  resContainer.style.display = 'block';
+
+  let histHtml = `
+    <div class="history-strip">
+      <div class="history-stamp ok">Semana 1 ✅</div>
+      <div class="history-stamp ok">Semana 2 ✅</div>
+      <div class="history-stamp ${house.status === 'paid' ? 'ok' : 'fail'}">Actual ${house.status === 'paid' ? '✅' : '❌'}</div>
+    </div>
+  `;
+
+  if(house.status === 'paid') {
+    statusCard.className = 'status-box paid';
+    statusCard.innerHTML = `
+      <span style="font-size:36px;">✅</span>
+      <h3 style="margin:6px 0; color:#34d399;">¡Vivienda al día!</h3>
+      <p style="margin:0; font-size:13px; color:#a7f3d0;">Gracias ${nom} por aportar a la seguridad.</p>
+      ${histHtml}
+    `;
+  } else {
+    let msg = `Hola encargado, envío comprobante de pago: ${casa}, en ${calle} (A nombre de: ${nom}).`;
+    let waUrl = `https://wa.me/${PHONE_ADMIN}?text=${encodeURIComponent(msg)}`;
+    let qrHtml = data.qr ? `<img src="${data.qr}" class="qr-img">` : '<p style="font-size:12px; color:var(--muted);">El administrador aún no ha subido el código QR.</p>';
+
+    statusCard.className = 'status-box unpaid';
+    statusCard.innerHTML = `
+      <h3 style="margin:6px 0; color:#f87171;">⚠️ Pago Pendiente</h3>
+      <p style="margin:0; font-size:14px; color:#fca5a5;">Monto a pagar: <b>Bs ${data.fee}</b></p>
+      ${qrHtml}
+      <p style="font-size:12px; color:var(--muted); margin: 5px 0 10px;">Escanea el código para pagar y luego envía tu comprobante.</p>
+      <a href="${waUrl}" target="_blank" class="btn btn-whatsapp">📲 Ya pagué, enviar comprobante</a>
+      ${histHtml}
+    `;
+  }
+}
+
+function triggerPanic() {
+  let nom = document.getElementById('vecNombre').value || "Un vecino";
+  let calle = document.getElementById('vecCalle').value || "una calle";
+  let casa = document.getElementById('vecCasa').value || "una casa";
+  let msg = `🚨 ALERTA DE PÁNICO SILENCIOSO 🚨\\nRequieren apoyo urgente en ${casa} (${calle}). Solicitante: ${nom}.\\nPor favor revisar situación de inmediato.`;
+  window.open(`https://wa.me/${PHONE_ADMIN}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+// ADMIN LOGIN
+function checkAdminPass() {
+  if(document.getElementById('adminPass').value === ADMIN_PASS) {
+    document.getElementById('adminAuth').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'block';
+    document.getElementById('loginError').style.display = 'none';
+    setTimeout(() => { initMaps(); mapA.invalidateSize(); }, 200);
+  } else { document.getElementById('loginError').style.display = 'block'; }
+}
+function logoutAdmin() { document.getElementById('adminAuth').style.display = 'block'; document.getElementById('adminPanel').style.display = 'none'; document.getElementById('adminPass').value = ''; }
+
+// MAPAS
+function initMaps() {
+  if(!mapV){ mapV = L.map('mapVecino', { dragging: !L.Browser.mobile }).setView([-17.78, -63.18], 15); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(mapV); }
+  if(!mapA){ mapA = L.map('mapAdmin').setView([-17.78, -63.18], 15); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(mapA); mapA.on('click', handleAdminMapClick); }
+  renderAll();
+}
+function createPinIcon(h) { let num = h.name.replace(/[^0-9]/g, '').slice(-2) || '•'; return L.divIcon({ className: '', html: `<div class="pin ${h.status}"><span>${num}</span></div>`, iconSize: [24, 24], iconAnchor: [12, 24] }); }
+
+function renderAll() {
+  if(mapA && mapV) { Object.values(markersAdmin).forEach(m => mapA.removeLayer(m)); Object.values(markersVecino).forEach(m => mapV.removeLayer(m)); markersAdmin = {}; markersVecino = {}; }
+  let paidCount = 0;
+  data.houses.forEach(h => {
+    if(h.status === 'paid') paidCount++;
+    if(h.lat != null && h.lng != null && mapA && mapV) {
+      let mV = L.marker([h.lat, h.lng], { icon: createPinIcon(h), interactive: true }).addTo(mapV); mV.bindTooltip(`${h.name}`); markersVecino[h.id] = mV;
+      let mA = L.marker([h.lat, h.lng], { icon: createPinIcon(h), draggable: true }).addTo(mapA); mA.bindTooltip(h.name); mA.on('click', () => openEditor(h.id));
+      mA.on('dragend', (e) => { h.lat = e.target.getLatLng().lat; h.lng = e.target.getLatLng().lng; saveData(); }); markersAdmin[h.i
